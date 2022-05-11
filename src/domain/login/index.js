@@ -102,7 +102,7 @@ const Login = (props) => {
                     </div>
                     <div className="title">
                         <p>Hey Memphiser,</p>
-                        <p>Welcome Back</p>
+                        <p>Welcome</p>
                     </div>
                     <div className="login-form">
                         <Form

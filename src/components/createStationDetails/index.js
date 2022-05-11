@@ -86,8 +86,8 @@ const CreateStationDetails = (props) => {
             const data = await httpRequest('GET', ApiEndpoints.GEL_ALL_FACTORIES);
             if (data) {
                 if (data.length === 0) {
-                    updateFormState('factory_name', 'Melvis_factory');
-                    creationForm.setFieldsValue({ ['factory_name']: 'Melvis_factory' });
+                    updateFormState('factory_name', 'Melvis');
+                    creationForm.setFieldsValue({ ['factory_name']: 'Melvis' });
                     creationForm.setFieldsValue({ ['factories_List']: [] });
                 } else {
                     const factories = data.map((factory) => factory.name);

@@ -14,7 +14,6 @@
 import './style.scss';
 
 import React, { useEffect, useContext, useState, useRef } from 'react';
-import { useHistory } from 'react-router-dom';
 
 import CreateFactoryDetails from './createFactoryDetails';
 import emptyList from '../../assets/images/emptyList.svg';
@@ -28,7 +27,6 @@ import Loader from '../../components/loader';
 
 function FactoriesList() {
     const [state, dispatch] = useContext(Context);
-    const history = useHistory();
     const [factoriesList, setFactoriesList] = useState([]);
     const [modalIsOpen, modalFlip] = useState(false);
     const createFactoryRef = useRef(null);
