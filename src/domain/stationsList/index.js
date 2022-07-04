@@ -18,7 +18,6 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import EditOutlined from '@material-ui/icons/EditOutlined';
 import { useHistory } from 'react-router-dom';
-import io from 'socket.io-client';
 
 import CreateStationDetails from '../../components/createStationDetails';
 import { ApiEndpoints } from '../../const/apiEndpoints';
@@ -39,7 +38,6 @@ const StationsList = () => {
     const urlfactoryName = url.split('factories/')[1].split('/')[0];
     const history = useHistory();
     const botId = 1;
-    let socket;
 
     const [state, dispatch] = useContext(Context);
     const [editName, seteditName] = useState(false);
@@ -52,7 +50,6 @@ const StationsList = () => {
     const createStationRef = useRef(null);
     const [parseDate, setParseDate] = useState('');
     const [botUrl, SetBotUrl] = useState('');
-    const [isDataLoaded, setIsDataLoaded] = useState(false);
 
     const getFactoryDetails = async () => {
         setisLoading(true);
@@ -64,7 +61,6 @@ const StationsList = () => {
             setFactoryName(data.name);
             setFactoryDescription(data.description);
             setisLoading(false);
-            setIsDataLoaded(true);
         } catch (error) {
             setisLoading(false);
             if (error.status === 404) {
@@ -84,53 +80,42 @@ const StationsList = () => {
 
     const handleRegisterToFactory = useCallback(
         (factoryName) => {
-            socket.emit('register_factory_overview_data', factoryName);
+            state.socket?.emit('register_factory_overview_data', factoryName);
         },
-        [isDataLoaded]
+        [state.socket]
     );
 
     useEffect(() => {
-        if (isDataLoaded) {
-            socket = io.connect(SOCKET_URL, {
-                path: '/api/socket.io',
-                query: {
-                    authorization: localStorage.getItem(LOCAL_STORAGE_TOKEN)
-                },
-                reconnection: false
-            });
+        state.socket?.on('factory_overview_data', (data) => {
+            setBotImage(data.user_avatar_id || botId);
+            setParseDate(parsingDate(data.creation_date));
+            setFactoryDetails(data);
+            setFactoryName(data.name);
+            setFactoryDescription(data.description);
+        });
 
-            socket.on('factory_overview_data', (data) => {
-                setBotImage(data.user_avatar_id || botId);
-                setParseDate(parsingDate(data.creation_date));
-                setFactoryDetails(data);
-                setFactoryName(data.name);
-                setFactoryDescription(data.description);
-            });
+        state.socket?.on('error', (error) => {
+            history.push(pathDomains.factoriesList);
+        });
 
-            socket.on('error', (error) => {
-                history.push(pathDomains.factoriesList);
-            });
+        setTimeout(() => {
+            handleRegisterToFactory(urlfactoryName);
+        }, 1000);
 
-            setTimeout(() => {
-                handleRegisterToFactory(urlfactoryName);
-            }, 1000);
-
-            return () => {
-                socket.emit('deregister');
-                socket.close();
-            };
-        }
-    }, [isDataLoaded]);
+        return () => {
+            state.socket?.emit('deregister');
+        };
+    }, [state.socket]);
 
     const handleEditName = useCallback(() => {
-        socket.emit('deregister');
+        state.socket?.emit('deregister');
         seteditName(true);
-    }, [isDataLoaded]);
+    }, [state.socket]);
 
     const handleEditDescription = useCallback(() => {
-        socket.emit('deregister');
+        state.socket?.emit('deregister');
         seteditDescription(true);
-    }, [isDataLoaded]);
+    }, [state.socket]);
 
     const handleEditNameBlur = async (e) => {
         if (!e.target.value || e.target.value === factoryDetails.name || e.target.value === '') {

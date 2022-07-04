@@ -1,7 +1,7 @@
 .failed-factories-container {
     padding: 15px;
     position: relative;
-    min-width: 620px;
+    min-width: 400px;
     min-height: 200px;
     overflow: hidden;
     .factories-err-message {
@@ -34,11 +34,17 @@
             display: flex;
             justify-content: space-between;
             color: #979797;
+            padding: 10px;
+            span {
+                display: flex;
+                align-items: center;
+                height: 10px;
+            }
         }
         .rows-wrapper {
             position: absolute;
             width: 100%;
-            height: calc(100% - 35px);
+            height: calc(100% - 25px);
             overflow: auto;
             .factory-row {
                 display: flex;
@@ -46,6 +52,9 @@
                 justify-content: space-between;
                 width: 100%;
                 cursor: pointer;
+                padding: 10px;
+                height: 35px;
+                align-items: center;
                 .link-row {
                     color: var(--purple);
                     font-weight: 600;
@@ -64,16 +73,14 @@
                 .yellow {
                     background-color: #ffd12f;
                 }
+                a{
+                    width: 100px;
+                }
             }
             .factory-row:nth-child(even) {
                 background-color: #f8f8f8;
             }
         }
-        span {
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            height: 35px;
-        }
+   
     }
 }

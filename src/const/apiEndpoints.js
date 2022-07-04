@@ -15,7 +15,6 @@ export const ApiEndpoints = {
     //Auth
     LOGIN: '/usermgmt/login',
     REFRESH_TOKEN: '/usermgmt/refreshToken',
-    LOGOUT: '/usermgmt/logout',
     ADD_USER: '/usermgmt/addUser',
     GET_ALL_USERS: '/usermgmt/getAllUsers',
     REMOVE_USER: '/usermgmt/removeUser',
@@ -25,6 +24,7 @@ export const ApiEndpoints = {
     EDIT_COMPANY_LOGO: '/usermgmt/editCompanyLogo',
     REMOVE_COMPANY_LOGO: '/usermgmt/removeCompanyLogo',
     EDIT_ANALYTICS: '/usermgmt/editAnalytics',
+    SANDBOX_LOGIN: '/sandbox/login',
 
     //Factory
     CREATE_FACTORY: '/factories/createFactory',

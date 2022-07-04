@@ -22,7 +22,6 @@ import SysComponents from './sysComponents';
 import { Context } from '../../hooks/store';
 import Throughput from './throughput';
 import Resources from './resources';
-import io from 'socket.io-client';
 
 import Button from '../../components/button';
 import CreateStationDetails from '../../components/createStationDetails';
@@ -80,29 +79,19 @@ function OverView() {
     }, []);
 
     useEffect(() => {
-        if (isDataLoaded) {
-            const socket = io.connect(SOCKET_URL, {
-                path: '/api/socket.io',
-                query: {
-                    authorization: localStorage.getItem(LOCAL_STORAGE_TOKEN)
-                },
-                reconnection: false
-            });
-            socket.on('main_overview_data', (data) => {
-                data.stations?.sort((a, b) => new Date(b.creation_date) - new Date(a.creation_date));
-                dispatch({ type: 'SET_MONITOR_DATA', payload: data });
-            });
+        state.socket?.on('main_overview_data', (data) => {
+            data.stations?.sort((a, b) => new Date(b.creation_date) - new Date(a.creation_date));
+            dispatch({ type: 'SET_MONITOR_DATA', payload: data });
+        });
 
-            setTimeout(() => {
-                socket.emit('register_main_overview_data');
-                setisLoading(false);
-            }, 1000);
-            return () => {
-                socket.emit('deregister');
-                socket.close();
-            };
-        }
-    }, [isDataLoaded]);
+        setTimeout(() => {
+            state.socket?.emit('register_main_overview_data');
+            setisLoading(false);
+        }, 1000);
+        return () => {
+            state.socket?.emit('deregister');
+        };
+    }, [state.socket]);
 
     const setBotImage = (botId) => {
         SetBotUrl(require(`../../assets/images/bots/${botId}.svg`));

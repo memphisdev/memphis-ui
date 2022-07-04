@@ -13,6 +13,7 @@
         .header {
             height: 110px;
             width: 100%;
+            min-width: 600px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -58,6 +59,7 @@
             flex-direction: row;
             justify-content: space-between;
             width: 100%;
+            min-width: 600px;
             height: calc(100% - 110px);
             .left-side {
                 width: 65%;

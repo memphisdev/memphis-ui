@@ -20,6 +20,7 @@ import ErrorSharpIcon from '@material-ui/icons/ErrorSharp';
 import { Context } from '../../../hooks/store';
 import pathDomains from '../../../router';
 import { parsingDate } from '../../../services/valueConvertor';
+import OverflowTip from '../../../components/tooltip/overflowtip';
 
 const FailedStations = () => {
     const [state, dispatch] = useContext(Context);
@@ -33,9 +34,9 @@ const FailedStations = () => {
             </div> */}
             <div className="err-factories-list">
                 <div className="coulmns-table">
-                    <span style={{ width: '200px' }}>Name</span>
-                    <span style={{ width: '200px' }}>Factory</span>
-                    <span style={{ width: '200px' }}>Creation date</span>
+                    <span style={{ width: '100px' }}>Name</span>
+                    <span style={{ width: '100px' }}>Factory</span>
+                    <span style={{ width: '150px' }}>Creation date</span>
                     {/* <span style={{ width: '100px' }}>Status</span> */}
                     <span style={{ width: '100px' }}></span>
                 </div>
@@ -43,9 +44,15 @@ const FailedStations = () => {
                     {state?.monitor_data?.stations?.map((station, index) => {
                         return (
                             <div className="factory-row" key={index}>
-                                <span style={{ width: '200px' }}>{station.name}</span>
-                                <span style={{ width: '200px' }}>{station.factory_name}</span>
-                                <span style={{ width: '200px' }}>{parsingDate(station.creation_date)}</span>
+                                <OverflowTip text={station.name} width={'100px'}>
+                                    {station.name}
+                                </OverflowTip>
+                                <OverflowTip text={station.factory_name} width={'100px'}>
+                                    {station.factory_name}
+                                </OverflowTip>
+                                <OverflowTip text={parsingDate(station.creation_date)} width={'150px'}>
+                                    {parsingDate(station.creation_date)}
+                                </OverflowTip>
                                 {/* {station.status === 1 && (
                                     <span style={{ width: '100px' }}>
                                         <div className="dot green"></div>

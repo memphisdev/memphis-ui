@@ -56,6 +56,11 @@ const Reducer = (state, action) => {
                 ...state,
                 userData: newUserData
             };
+        case 'SET_SOCKET_DETAILS':
+            return {
+                ...state,
+                socket: action.payload
+            };
 
         default:
             return state;

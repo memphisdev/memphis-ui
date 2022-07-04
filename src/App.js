@@ -15,7 +15,7 @@ import './App.scss';
 
 import { Switch, Route, withRouter } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import StationOverview from './domain/stationOverview';
 import FactoriesList from './domain/factoriesList';
@@ -32,7 +32,10 @@ import { Redirect } from 'react-router-dom';
 import { handleRefreshTokenRequest } from './services/http';
 import { LOCAL_STORAGE_TOKEN } from './const/localStorageConsts';
 import { useHistory } from 'react-router-dom';
-import { HANDLE_REFRESH_INTERVAL } from './config';
+import { HANDLE_REFRESH_INTERVAL, SOCKET_URL } from './config';
+import io from 'socket.io-client';
+import { Context } from './hooks/store';
+import SandboxLogin from './domain/sandboxLogin';
 
 const Desktop = ({ children }) => {
     const isDesktop = useMediaQuery({ minWidth: 850 });
@@ -46,25 +49,40 @@ const Mobile = ({ children }) => {
 
 const App = withRouter(() => {
     const [authCheck, setAuthCheck] = useState(true);
+    const [state, dispatch] = useContext(Context);
+
     const history = useHistory();
 
     useEffect(async () => {
-        await handleRefresh();
+        await handleRefresh(true);
         setAuthCheck(false);
 
         const interval = setInterval(() => {
-            handleRefresh();
+            handleRefresh(false);
         }, HANDLE_REFRESH_INTERVAL);
 
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval);
+            state.socket?.close();
+        };
     }, []);
 
-    const handleRefresh = async () => {
+    const handleRefresh = async (firstTime) => {
         if (window.location.pathname === pathDomains.login) {
             return;
         } else if (localStorage.getItem(LOCAL_STORAGE_TOKEN)) {
             const handleRefreshStatus = await handleRefreshTokenRequest();
             if (handleRefreshStatus) {
+                if (firstTime) {
+                    const socket = await io.connect(SOCKET_URL, {
+                        path: '/api/socket.io',
+                        query: {
+                            authorization: localStorage.getItem(LOCAL_STORAGE_TOKEN)
+                        },
+                        reconnection: false
+                    });
+                    dispatch({ type: 'SET_SOCKET_DETAILS', payload: socket });
+                }
                 return true;
             }
         } else {
@@ -78,7 +96,7 @@ const App = withRouter(() => {
                 {' '}
                 {!authCheck && (
                     <Switch>
-                        <Route exact path={pathDomains.login} component={Login} />
+                        <Route exact path={pathDomains.login} component={process.env.REACT_APP_SANDBOX_ENV ? SandboxLogin : Login} />
                         <PrivateRoute
                             exact
                             path={pathDomains.overview}

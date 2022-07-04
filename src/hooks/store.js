@@ -29,7 +29,8 @@ const initialState = {
     error: null,
     route: '',
     isAuthentication: false,
-    analytics_modal: true
+    analytics_modal: true,
+    socket: null
 };
 
 const Store = ({ children }) => {

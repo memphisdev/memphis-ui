@@ -42,14 +42,12 @@ export const CODE_EXAMPLE = `const memphis = require("memphis-dev");
             stationName: "test",
             producerName: "producer_app"
         });
-        const promises = [];
         for (let index = 0; index < 100; index++) {
-            promises.push(producer.produce({
+            await producer.produce({
                 message: Buffer.from('Hello world')
-            }));
+            });
             console.log("Message sent");
         }
-        await Promise.all(promises);
         console.log("All messages sent");
     } catch (ex) {
         console.log(ex);

@@ -14,7 +14,6 @@
 import './style.scss';
 
 import React, { useEffect, useContext, useState, useRef } from 'react';
-import io from 'socket.io-client';
 
 import CreateFactoryDetails from './createFactoryDetails';
 import emptyList from '../../assets/images/emptyList.svg';
@@ -25,8 +24,6 @@ import Loader from '../../components/loader';
 import { Context } from '../../hooks/store';
 import Modal from '../../components/modal';
 import Factory from './factory';
-import { LOCAL_STORAGE_TOKEN } from '../../const/localStorageConsts';
-import { SOCKET_URL } from '../../config';
 
 function FactoriesList() {
     const [state, dispatch] = useContext(Context);
@@ -34,7 +31,6 @@ function FactoriesList() {
     const [modalIsOpen, modalFlip] = useState(false);
     const createFactoryRef = useRef(null);
     const [isLoading, setisLoading] = useState(false);
-    const [isDataLoaded, setIsDataLoaded] = useState(false);
 
     const getFactories = async () => {
         setisLoading(true);
@@ -42,7 +38,6 @@ function FactoriesList() {
             const data = await httpRequest('GET', ApiEndpoints.GEL_ALL_FACTORIES);
             setFactoriesList(data);
             setisLoading(false);
-            setIsDataLoaded(true);
         } catch (error) {
             setisLoading(false);
         }
@@ -54,27 +49,17 @@ function FactoriesList() {
     }, []);
 
     useEffect(() => {
-        if (isDataLoaded) {
-            const socket = io.connect(SOCKET_URL, {
-                path: '/api/socket.io',
-                query: {
-                    authorization: localStorage.getItem(LOCAL_STORAGE_TOKEN)
-                },
-                reconnection: false
-            });
-            socket.on('factories_overview_data', (data) => {
-                setFactoriesList(data);
-            });
+        state.socket?.on('factories_overview_data', (data) => {
+            setFactoriesList(data);
+        });
 
-            setTimeout(() => {
-                socket.emit('register_factories_overview_data');
-            }, 1000);
-            return () => {
-                socket.emit('deregister');
-                socket.close();
-            };
-        }
-    }, [isDataLoaded]);
+        setTimeout(() => {
+            state.socket?.emit('register_factories_overview_data');
+        }, 1000);
+        return () => {
+            state.socket?.emit('deregister');
+        };
+    }, [state.socket]);
 
     const removeFactory = (id) => {
         setFactoriesList(factoriesList.filter((item) => item.id !== id));

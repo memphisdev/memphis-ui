@@ -42,16 +42,7 @@ const AuthService = (function () {
         localStorage.setItem(LOCAL_STORAGE_ALLOW_ANALYTICS, userData.send_analytics);
     };
 
-    const logout = async () => {
-        if (localStorage.getItem(LOCAL_STORAGE_TOKEN)) {
-            try {
-                await httpRequest('POST', ApiEndpoints.LOGOUT);
-            } catch (error) {
-                localStorage.clear();
-                window.location.assign(pathDomains.login);
-                return;
-            }
-        }
+    const logout = () => {
         localStorage.clear();
         window.location.assign(pathDomains.login);
     };

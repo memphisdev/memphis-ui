@@ -3,7 +3,6 @@
     position: absolute;
     padding: 2vw;
     height: calc(100%);
-    min-width: 1000px;
     overflow: auto;
     display: flex;
     flex-direction: column;
@@ -27,6 +26,7 @@
     }
     .overview-bottom {
         width: 100%;
+        min-width: 1000px;
         display: flex;
         position: relative;
     }

@@ -13,8 +13,7 @@
 
 import './style.scss';
 
-import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import io from 'socket.io-client';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 
 import OverflowTip from '../../../components/tooltip/overflowtip';
 import { parsingDate } from '../../../services/valueConvertor';
@@ -27,17 +26,18 @@ import LogBadge from '../../../components/logBadge';
 import SelectComponent from '../../../components/select';
 import { httpRequest } from '../../../services/http';
 import { ApiEndpoints } from '../../../const/apiEndpoints';
+import { Context } from '../../../hooks/store';
 
 const GenericList = ({ columns }) => {
     const types = ['all', 'info', 'warn', 'error'];
 
     const [logsState, setLogState] = useState({
-        gotData: false,
         logsData: [],
         dataLength: 0,
         logFilter: 'all',
         searchInput: ''
     });
+    const [state, dispatch] = useContext(Context);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedRowIndex, setSelectedRowIndex] = useState(0);
     const [logFilter, setLogFilter] = useState('all');
@@ -47,23 +47,19 @@ const GenericList = ({ columns }) => {
     stateRef.current = [logsState.logsData, logFilter, searchInput];
 
     useEffect(() => {
-        if (!logsState.gotData) {
-            getSystemLogs(8);
-        }
+        getSystemLogs(8);
     }, []);
 
     const getSystemLogs = async (hours) => {
         setIsLoading(true);
         try {
             const data = await httpRequest('GET', ApiEndpoints.GET_SYS_LOGS, {}, {}, { hours: hours });
-            if (data) {
+            if (data?.logs) {
                 let SortData = data.logs?.sort((a, b) => new Date(b.creation_date) - new Date(a.creation_date)).map((log) => ({ ...log, show: true }));
-                setLogState({ ...logsState, logsData: SortData, dataLength: SortData.length, gotData: true });
-                setIsLoading(false);
+                setLogState({ ...logsState, logsData: SortData, dataLength: SortData?.length, gotData: true });
             }
-        } catch (error) {
-            setLogState({ ...logsState, isLoading: false });
-        }
+        } catch (error) {}
+        setIsLoading(false);
     };
 
     const handleFilter = (data, comingLogs) => {
@@ -72,7 +68,7 @@ const GenericList = ({ columns }) => {
             setIsLoading(true);
             let result;
             if (stateRef.current[1] === 'all') {
-                if (stateRef.current[2].length > 1) {
+                if (stateRef.current[2]?.length > 1) {
                     result = data?.map((log) => {
                         if (log?.log.toLowerCase().includes(stateRef.current[2])) {
                             counter++;
@@ -88,7 +84,7 @@ const GenericList = ({ columns }) => {
                     });
                     result = newData;
                 }
-            } else if (stateRef.current[2].length > 1) {
+            } else if (stateRef.current[2]?.length > 1) {
                 result = data?.map((log) => {
                     if (log.type.toLowerCase() === stateRef.current[1] && log?.log.toLowerCase().includes(stateRef.current[2])) {
                         counter++;
@@ -119,36 +115,20 @@ const GenericList = ({ columns }) => {
     };
 
     useEffect(() => {
-        let socket;
-        if (logsState.gotData) {
-            socket = io.connect(SOCKET_URL, {
-                path: '/api/socket.io',
-                query: {
-                    authorization: localStorage.getItem(LOCAL_STORAGE_TOKEN)
-                },
-                reconnection: false
-            });
-
-            setTimeout(() => {
-                socket.emit('register_system_logs_data');
-            }, 2000);
-
-            socket.on('system_logs_data', (data) => {
-                if (data) {
-                    console.log(data);
-                    let sortData = data?.sort((a, b) => new Date(b.creation_date) - new Date(a.creation_date));
-                    handleFilter(sortData, true);
-                }
-            });
-        }
+        state.socket?.on('system_logs_data', (data) => {
+            if (data) {
+                let sortData = data?.sort((a, b) => new Date(b.creation_date) - new Date(a.creation_date));
+                handleFilter(sortData, true);
+            }
+        });
+        setTimeout(() => {
+            state.socket?.emit('register_system_logs_data');
+        }, 2000);
 
         return () => {
-            if (socket?.connected) {
-                socket.emit('deregister');
-                socket.close();
-            }
+            state.socket?.emit('deregister');
         };
-    }, [logsState.gotData]);
+    }, [state.socket]);
 
     useEffect(() => {
         handleFilter(logsState.logsData, false);

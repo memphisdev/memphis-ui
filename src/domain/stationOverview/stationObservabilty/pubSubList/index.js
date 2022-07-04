@@ -56,7 +56,7 @@ const PubSubList = (props) => {
             );
         } else if (!is_deleted) {
             return (
-                <TooltipComponent text="Killed" minWidth="15px">
+                <TooltipComponent text="Disconnected" minWidth="15px">
                     <img src={disconnect} />
                 </TooltipComponent>
             );

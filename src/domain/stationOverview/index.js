@@ -26,9 +26,6 @@ import pathDomains from '../../router';
 
 import Reducer from './hooks/reducer';
 import Loader from '../../components/loader';
-import io from 'socket.io-client';
-import { SOCKET_URL } from '../../config';
-import { LOCAL_STORAGE_TOKEN } from '../../const/localStorageConsts';
 import { useHistory } from 'react-router-dom';
 
 const StationOverview = () => {
@@ -38,7 +35,6 @@ const StationOverview = () => {
     const history = useHistory();
     const [state, dispatch] = useContext(Context);
     const [isLoading, setisLoading] = useState(false);
-    const [isDataLoaded, setIsDataLoaded] = useState(false);
 
     const getStaionMetaData = async () => {
         try {
@@ -69,7 +65,6 @@ const StationOverview = () => {
             await sortData(data);
             stationDispatch({ type: 'SET_SOCKET_DATA', payload: data });
             setisLoading(false);
-            setIsDataLoaded(true);
         } catch (error) {
             setisLoading(false);
             if (error.status === 404) {
@@ -86,29 +81,18 @@ const StationOverview = () => {
     }, []);
 
     useEffect(() => {
-        if (isDataLoaded) {
-            const socket = io.connect(SOCKET_URL, {
-                path: '/api/socket.io',
-                query: {
-                    authorization: localStorage.getItem(LOCAL_STORAGE_TOKEN)
-                },
-                reconnection: false
-            });
+        state.socket?.on('station_overview_data', (data) => {
+            sortData(data);
+            stationDispatch({ type: 'SET_SOCKET_DATA', payload: data });
+        });
 
-            socket.on('station_overview_data', (data) => {
-                sortData(data);
-                stationDispatch({ type: 'SET_SOCKET_DATA', payload: data });
-            });
-
-            setTimeout(() => {
-                socket.emit('register_station_overview_data', stationName);
-            }, 1000);
-            return () => {
-                socket.emit('deregister');
-                socket.close();
-            };
-        }
-    }, [isDataLoaded]);
+        setTimeout(() => {
+            state.socket?.emit('register_station_overview_data', stationName);
+        }, 1000);
+        return () => {
+            state.socket?.emit('deregister');
+        };
+    }, [state.socket]);
 
     return (
         <StationStoreContext.Provider value={[stationState, stationDispatch]}>
