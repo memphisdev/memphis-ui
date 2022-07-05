@@ -26,18 +26,17 @@ import AuthService from '../../services/auth';
 import Button from '../../components/button';
 import Loader from '../../components/loader';
 import GitHubLogo from '../../assets/images/GitHubLogo.png';
+import GoogleLogo from '../../assets/images/GoogleLogo.png';
 import { Context } from '../../hooks/store';
 import Input from '../../components/Input';
-import { SOCKET_URL } from '../../config';
 import io from 'socket.io-client';
-import { gapi } from 'gapi-script';
-import { GoogleLogin } from 'react-google-login';
-import { GOOGLE_CLIENT_ID, GITHUB_CLIENT_ID, GITHUB_REDIRECT_URI } from '../../config';
+import { GOOGLE_CLIENT_ID, GITHUB_CLIENT_ID, REDIRECT_URI, SOCKET_URL } from '../../config';
 
 const SandboxLogin = (props) => {
     const [state, dispatch] = useContext(Context);
     const history = useHistory();
     const [loginForm] = Form.useForm(); // form controller
+    const [isLoading, setisLoading] = useState(false);
     const [formFields, setFormFields] = useState({
         username: '',
         password: ''
@@ -48,6 +47,7 @@ const SandboxLogin = (props) => {
 
     const signinWithGithub = async (code) => {
         try {
+            setisLoading(true);
             const data = await httpRequest(
                 'POST',
                 ApiEndpoints.SANDBOX_LOGIN,
@@ -61,46 +61,79 @@ const SandboxLogin = (props) => {
             );
             AuthService.saveToLocalStorage(data);
             history.push(referer);
+            setisLoading(false);
         } catch (err) {
+            setisLoading(false);
             setError(err);
         }
     };
 
     const handleGithubButtonClick = () => {
-        window.location.href = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=user&redirect_uri=${GITHUB_REDIRECT_URI}`;
+        window.location.href = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=user&redirect_uri=${REDIRECT_URI}`;
     };
 
     useEffect(() => {
+        let splittedUrl;
         if (localStorage.getItem(LOCAL_STORAGE_TOKEN) && AuthService.isValidToken()) {
             history.push(referer);
         }
         const url = window.location.href;
+        const shouldSigninWithGoogle = url.includes('?code=') && url.includes('&scope=email');
         const shouldSigninWithGithub = url.includes('?code=');
-        const splittedUrl = url.split('?code=');
-        window.history.pushState({}, null, splittedUrl[0]);
-        if (shouldSigninWithGithub) {
+        if (shouldSigninWithGoogle) {
+            splittedUrl = url.split('?code=');
+            window.history.pushState({}, null, splittedUrl[0]);
+            if (splittedUrl.length > 1) {
+                const code = splittedUrl[1].split('&scope=email')[0];
+                handleGoogleSignin(code);
+            } else {
+                setError('Authentication with GitHub failed');
+            }
+        } else if (shouldSigninWithGithub) {
+            splittedUrl = url.split('?code=');
+            window.history.pushState({}, null, splittedUrl[0]);
             if (splittedUrl.length > 1) {
                 signinWithGithub(`${splittedUrl[1]}`);
             } else {
                 setError('Authentication with GitHub failed');
             }
         }
-        function start() {
-            gapi.client.init({
-                clientId: GOOGLE_CLIENT_ID,
-                scope: 'email'
-            });
-        }
-        gapi.load('client:auth2', start);
     }, []);
 
     const handleUserNameChange = (e) => {
         setFormFields({ ...formFields, username: e.target.value });
     };
 
+    const handleGoogleButtonClick = () => window.location.replace(getGoogleAuthUri());
+
     const handlePasswordChange = (e) => {
         setFormFields({ ...formFields, password: e.target.value });
     };
+
+    function getGoogleAuthUri() {
+        const rootUrl = `https://accounts.google.com/o/oauth2/v2/auth`;
+        let base = window.location.href,
+            state = '';
+        let i = base.indexOf('#');
+        if (i > -1) {
+            state = base.substring(i);
+            base = base.substring(0, i);
+        }
+
+        const options = {
+            redirect_uri: REDIRECT_URI,
+            client_id: GOOGLE_CLIENT_ID,
+            access_type: 'offline',
+            response_type: 'code',
+            prompt: 'consent',
+            scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'].join(' '),
+            state: state
+        };
+
+        const qs = new URLSearchParams(options);
+
+        return `${rootUrl}?${qs.toString()}`;
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -132,14 +165,15 @@ const SandboxLogin = (props) => {
         }
     };
 
-    const handleGoogleSignin = async (googleData) => {
+    const handleGoogleSignin = async (token) => {
         try {
+            setisLoading(true);
             const data = await httpRequest(
                 'POST',
                 ApiEndpoints.SANDBOX_LOGIN,
                 {
                     loginType: 'google',
-                    token: googleData.tokenId
+                    token: token
                 },
                 {},
                 {},
@@ -147,7 +181,9 @@ const SandboxLogin = (props) => {
             );
             AuthService.saveToLocalStorage(data);
             history.push(referer);
+            setisLoading(false);
         } catch (err) {
+            setisLoading(false);
             setError(err);
         }
     };
@@ -170,89 +206,58 @@ const SandboxLogin = (props) => {
 
     return (
         <section className="sandbox-containers">
-            {state.loading ? <Loader></Loader> : ''}
-
-            <div className="desktop-container">
-                <div className="desktop-content">
-                    <div className="logoImg">
-                        <img alt="logo" src={betaFullLogo}></img>
-                    </div>
-                    <content is="x3d">
-                        <div className="title">
-                            <p>Hey Memphiser,</p>
-                            <p>Let's try us</p>
+            {isLoading ? (
+                <Loader></Loader>
+            ) : (
+                <div className="desktop-container">
+                    <div className="desktop-content">
+                        <div className="logoImg">
+                            <img alt="logo" src={betaFullLogo}></img>
                         </div>
-                        <div className="login-container">
-                            <div>
-                                <div className="google-pad">
-                                    <GoogleLogin
-                                        clientId={GOOGLE_CLIENT_ID}
-                                        className="google-login-button"
-                                        buttonText="Sign in with Google"
-                                        onSuccess={handleGoogleSignin}
-                                        onFailure={handleGoogleSignin}
-                                        cookiePolicy={'single_host_origin'}
-                                    />
-                                    <button type="button" className="github-login-button" onClick={handleGithubButtonClick}>
-                                        <img src={GitHubLogo} alt="git" className="git-image"></img>
-                                        Sign in with GitHub
-                                    </button>
-                                </div>
+                        <content is="x3d">
+                            <div className="title">
+                                <p>Hey Memphiser,</p>
+                                <p>Come try us</p>
                             </div>
-                            <or is="x3d">
-                                <span>or</span>
-                            </or>
-                            <div className="login-form">
-                                <Form
-                                    {...layout}
-                                    name="basic"
-                                    initialValues={{
-                                        remember: true
-                                    }}
-                                    form={loginForm}
-                                >
-                                    <Form.Item
-                                        name="username"
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message: 'Username can not be empty'
-                                            }
-                                        ]}
+                            <div className="login-container">
+                                <div>
+                                    <div className="sandbox-pad">
+                                        <button type="button" className="google-login-button" onClick={handleGoogleButtonClick}>
+                                            <img src={GoogleLogo} alt="git" className="git-image"></img>
+                                            Sign in with Google
+                                        </button>
+                                        <button type="button" className="github-login-button" onClick={handleGithubButtonClick}>
+                                            <img src={GitHubLogo} alt="git" className="git-image"></img>
+                                            Sign in with GitHub
+                                        </button>
+                                    </div>
+                                </div>
+                                <or is="x3d">
+                                    <span>or</span>
+                                </or>
+                                <div className="login-form">
+                                    <Form
+                                        {...layout}
+                                        name="basic"
+                                        initialValues={{
+                                            remember: true
+                                        }}
+                                        form={loginForm}
                                     >
-                                        <div className="field name">
-                                            <p>Username</p>
-                                            <Input
-                                                placeholder="Type username"
-                                                type="text"
-                                                radiusType="semi-round"
-                                                colorType="gray"
-                                                backgroundColorType="none"
-                                                borderColorType="gray"
-                                                width="19vw"
-                                                height="43px"
-                                                minWidth="200px"
-                                                onBlur={handleUserNameChange}
-                                                onChange={handleUserNameChange}
-                                                value={formFields.username}
-                                            />
-                                        </div>
-                                    </Form.Item>
-                                    <Form.Item
-                                        name="password"
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message: 'Password can not be empty'
-                                            }
-                                        ]}
-                                    >
-                                        <div className="field password">
-                                            <p>Password</p>
-                                            <div id="e2e-tests-password">
+                                        <Form.Item
+                                            name="username"
+                                            rules={[
+                                                {
+                                                    required: true,
+                                                    message: 'Username can not be empty'
+                                                }
+                                            ]}
+                                        >
+                                            <div className="field name">
+                                                <p>Username</p>
                                                 <Input
-                                                    placeholder="Password"
-                                                    type="password"
+                                                    placeholder="Type username"
+                                                    type="text"
                                                     radiusType="semi-round"
                                                     colorType="gray"
                                                     backgroundColorType="none"
@@ -260,43 +265,72 @@ const SandboxLogin = (props) => {
                                                     width="19vw"
                                                     height="43px"
                                                     minWidth="200px"
-                                                    onChange={handlePasswordChange}
-                                                    onBlur={handlePasswordChange}
-                                                    value={formFields.password}
+                                                    onBlur={handleUserNameChange}
+                                                    onChange={handleUserNameChange}
+                                                    value={formFields.username}
                                                 />
                                             </div>
-                                        </div>
-                                    </Form.Item>
-                                    <Form.Item {...tailLayout} className="button-container">
-                                        <Button
-                                            width="19vw"
-                                            height="43px"
-                                            minWidth="200px"
-                                            placeholder="Sign in"
-                                            colorType="white"
-                                            radiusType="circle"
-                                            backgroundColorType="purple"
-                                            fontSize="12px"
-                                            fontWeight="600"
-                                            isLoading={loadingSubmit}
-                                            onClick={handleSubmit}
-                                        />
-                                    </Form.Item>
+                                        </Form.Item>
+                                        <Form.Item
+                                            name="password"
+                                            rules={[
+                                                {
+                                                    required: true,
+                                                    message: 'Password can not be empty'
+                                                }
+                                            ]}
+                                        >
+                                            <div className="field password">
+                                                <p>Password</p>
+                                                <div id="e2e-tests-password">
+                                                    <Input
+                                                        placeholder="Password"
+                                                        type="password"
+                                                        radiusType="semi-round"
+                                                        colorType="gray"
+                                                        backgroundColorType="none"
+                                                        borderColorType="gray"
+                                                        width="19vw"
+                                                        height="43px"
+                                                        minWidth="200px"
+                                                        onChange={handlePasswordChange}
+                                                        onBlur={handlePasswordChange}
+                                                        value={formFields.password}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </Form.Item>
+                                        <Form.Item {...tailLayout} className="button-container">
+                                            <Button
+                                                width="19vw"
+                                                height="43px"
+                                                minWidth="200px"
+                                                placeholder="Sign in"
+                                                colorType="white"
+                                                radiusType="circle"
+                                                backgroundColorType="purple"
+                                                fontSize="12px"
+                                                fontWeight="600"
+                                                isLoading={loadingSubmit}
+                                                onClick={handleSubmit}
+                                            />
+                                        </Form.Item>
 
-                                    {error && (
-                                        <div className="error-message">
-                                            <p>The username and password you entered did not match our records. Please double-check and try again.</p>
-                                        </div>
-                                    )}
-                                </Form>
+                                        {error && (
+                                            <div className="error-message">
+                                                <p>The username and password you entered did not match our records. Please double-check and try again.</p>
+                                            </div>
+                                        )}
+                                    </Form>
+                                </div>
                             </div>
-                        </div>
-                    </content>
+                        </content>
+                    </div>
+                    <div className="brand-shapes">
+                        <img alt="sharps" src={sharps}></img>
+                    </div>
                 </div>
-                <div className="brand-shapes">
-                    <img alt="sharps" src={sharps}></img>
-                </div>
-            </div>
+            )}
         </section>
     );
 };

@@ -67,32 +67,29 @@
                         }
                     }
 
-                    .google-pad {
+                    .sandbox-pad {
                         height: 10%;
                         padding-top: 2%;
                         padding-left: 16%;
                     }
 
                     .google-login-button {
-                        // position: absolute !important;
-                        width: 338px !important;
-                        height: 48px !important;
-                        left: 187px !important;
-                        top: 505px !important;
-                        font-family: 'Inter' !important;
-                        font-style: normal !important;
-                        font-weight: 700 !important;
-                        font-size: 18px !important;
-                        line-height: 128% !important;
-                        align-content: center !important;
-                        align-items: center !important;
-                        text-align: center !important;
-
-                        color: #4285f4 !important;
-                        box-sizing: border-box !important;
-                        border: 2px solid #4285f4 !important;
-                        border-radius: 26px !important;
-                        padding-left: 14% !important;
+                        padding: 10px;
+                        font-family: 'Inter';
+                        font-size: 18px;
+                        font-style: normal;
+                        line-height: 128%;
+                        margin-bottom: 10px;
+                        border: none;
+                        color: #4285f4;
+                        border-radius: 26px;
+                        border: 2px solid #4285f4;
+                        width: 338px;
+                        height: 48px;
+                        background-color: white;
+                        margin-top: 30px;
+                        cursor: pointer;
+                        box-shadow: rgb(0 0 0 / 24%) 0px 2px 2px 0px, rgb(0 0 0 / 24%) 0px 0px 1px 0px;
                     }
 
                     .github-login-button {
@@ -109,7 +106,7 @@
                         width: 338px;
                         height: 48px;
                         background-color: white;
-                        margin-top: 30px;
+                        margin-top: 15px;
                         cursor: pointer;
                         box-shadow: rgb(0 0 0 / 24%) 0px 2px 2px 0px, rgb(0 0 0 / 24%) 0px 0px 1px 0px;
                     }

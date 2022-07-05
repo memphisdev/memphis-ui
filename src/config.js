@@ -25,5 +25,5 @@ export const PRIVACY_URL = 'https://app.gitbook.com/o/-MSyW3CRw3knM-KGk6G6/s/t7N
 export const SOCKET_URL = environment === 'production' ? `${SSL_PREFIX}${SERVER_URL_PRODUCTION}` : 'localhost:5555/api';
 
 export const GOOGLE_CLIENT_ID = '916272522459-u0f4n2lh9llsielb3l5rob3dnt1fco76.apps.googleusercontent.com';
-export const GITHUB_CLIENT_ID = '4dc1b3238c4d7563e426';
-export const GITHUB_REDIRECT_URI = 'https://sandbox.memphis.dev/login';
+export const REDIRECT_URI = 'http://localhost:9000/login';
+export const GITHUB_CLIENT_ID = '51b0330eb3b34bc8f641';
