@@ -61,7 +61,6 @@
                     font-weight: 400;
                     font-size: 14px;
                     margin: 0;
-                    text-transform: capitalize;
                 }
                 span {
                     font-weight: 400;
@@ -70,7 +69,8 @@
                 }
             }
         }
+        .sandboxUserImg {
+            border-radius: 50%;
+        }
     }
 }
-
-

@@ -158,7 +158,13 @@ function SideBar() {
                         key="subMenu"
                         icon={
                             <div className="sub-icon-wrapper">
-                                <img src={botUrl} width={25} height={25} alt="bot"></img>
+                                <img
+                                    className="sandboxUserImg"
+                                    src={localStorage.getItem('profile_pic') || botUrl} // profile_pic is available only in sandbox env
+                                    width={localStorage.getItem('profile_pic') ? 35 : 25}
+                                    height={localStorage.getItem('profile_pic') ? 35 : 25}
+                                    alt="bot"
+                                ></img>
                             </div>
                         }
                     >
@@ -166,7 +172,7 @@ function SideBar() {
                             title={
                                 <div className="header-menu">
                                     <div className="company-logo">
-                                        <img src={state?.companyLogo || Logo} width="20" height="20" className="logoimg" alt="companyLogo" />
+                                        <img className="logoimg" src={state?.companyLogo || Logo} width="30" height="30" alt="companyLogo" />
                                     </div>
                                     <p>{localStorage.getItem(LOCAL_STORAGE_USER_NAME)}</p>
                                 </div>

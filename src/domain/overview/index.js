@@ -53,6 +53,7 @@ function OverView() {
     const [analyticsModal, analyticsModalFlip] = useState(true);
     const createStationRef = useRef(null);
     const [botUrl, SetBotUrl] = useState(require('../../assets/images/bots/1.svg'));
+    const [username, SetUsername] = useState(localStorage.getItem(LOCAL_STORAGE_USER_NAME));
     const [isLoading, setisLoading] = useState(false);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
 
@@ -73,6 +74,9 @@ function OverView() {
         dispatch({ type: 'SET_ROUTE', payload: 'overview' });
         getOverviewData();
         setBotImage(state?.userData?.avatar_id || localStorage.getItem(LOCAL_STORAGE_AVATAR_ID));
+        if (process.env.REACT_APP_SANDBOX_ENV) {
+            setUsernameByEnv();
+        }
         analyticsModalFlip(
             localStorage.getItem(LOCAL_STORAGE_ALREADY_LOGGED_IN) === 'false' && localStorage.getItem(LOCAL_STORAGE_ALLOW_ANALYTICS) === 'true' && state?.analytics_modal
         );
@@ -95,6 +99,10 @@ function OverView() {
 
     const setBotImage = (botId) => {
         SetBotUrl(require(`../../assets/images/bots/${botId}.svg`));
+    };
+
+    const setUsernameByEnv = () => {
+        SetUsername(localStorage.getItem(LOCAL_STORAGE_USER_NAME).substring(0, localStorage.getItem(LOCAL_STORAGE_USER_NAME).indexOf('@')));
     };
 
     const dontSendAnalytics = async () => {
@@ -125,13 +133,19 @@ function OverView() {
                     <div className="header">
                         <div className="header-welcome">
                             <div className="bot-wrapper">
-                                <img src={botUrl} width={40} height={40} alt="bot"></img>
+                                <img
+                                    className="sandboxUserImg"
+                                    src={localStorage.getItem('profile_pic') || botUrl} // profile_pic is available only in sandbox env
+                                    width={localStorage.getItem('profile_pic') ? 60 : 40}
+                                    height={localStorage.getItem('profile_pic') ? 60 : 40}
+                                    alt="bot"
+                                ></img>
                             </div>
                             <div className="dynamic-sentences">
                                 {localStorage.getItem(LOCAL_STORAGE_ALREADY_LOGGED_IN) === 'true' ? (
-                                    <h1>Welcome Back, {localStorage.getItem(LOCAL_STORAGE_USER_NAME)}</h1>
+                                    <h1>Welcome Back, {username}</h1>
                                 ) : (
-                                    <h1>Welcome Aboard, {localStorage.getItem(LOCAL_STORAGE_USER_NAME)}</h1>
+                                    <h1>Welcome Aboard, {username}</h1>
                                 )}
                                 {/* <p className="ok-status">You’re a memphis superhero! All looks good!</p> */}
                             </div>
