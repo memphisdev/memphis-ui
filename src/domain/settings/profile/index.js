@@ -107,6 +107,7 @@ function Profile() {
                         <img
                             className="sandboxUserImg"
                             src={localStorage.getItem('profile_pic') || Bot1} // profile_pic is available only in sandbox env
+                            referrerpolicy="no-referrer"
                             width={localStorage.getItem('profile_pic') ? 35 : 25}
                             height={localStorage.getItem('profile_pic') ? 35 : 25}
                             border-raduis={'50%'}

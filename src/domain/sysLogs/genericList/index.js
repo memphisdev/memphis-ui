@@ -17,8 +17,6 @@ import React, { Fragment, useContext, useEffect, useRef, useState } from 'react'
 
 import OverflowTip from '../../../components/tooltip/overflowtip';
 import { parsingDate } from '../../../services/valueConvertor';
-import { SOCKET_URL } from '../../../config';
-import { LOCAL_STORAGE_TOKEN } from '../../../const/localStorageConsts';
 import SearchInput from '../../../components/searchInput';
 import { SearchOutlined } from '@ant-design/icons';
 import Loader from '../../../components/loader';

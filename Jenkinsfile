@@ -41,11 +41,11 @@ node {
     ////////////////////////////////////////
 
     stage('Tests - Docker compose install') {
-      sh "rm -rf memphis-infra"
-      dir ('memphis-infra'){
-        git credentialsId: 'main-github', url: 'git@github.com:memphisdev/memphis-infra.git', branch: gitBranch //memphis-infra branch is the same as the main repo
+      sh "rm -rf memphis-docker"
+      dir ('memphis-docker'){
+        git credentialsId: 'main-github', url: 'git@github.com:memphisdev/memphis-docker.git', branch: 'master' 
       }
-      sh "docker-compose -f ./memphis-infra/docker/docker-compose-dev-memphis-ui.yml -p memphis up -d"
+      sh "docker-compose -f ./memphis-docker/docker-compose-dev-memphis-ui.yml -p memphis up -d"
     }
 
     stage('Tests - Run e2e tests over Docker') {
@@ -58,7 +58,7 @@ node {
     }
 
     stage('Tests - Remove Docker compose') {
-      sh "docker-compose -f ./memphis-infra/docker/docker-compose-dev-memphis-ui.yml -p memphis down"
+      sh "docker-compose -f ./memphis-docker/docker-compose-dev-memphis-ui.yml -p memphis down"
       sh "docker volume prune -f"
     }
 
@@ -67,7 +67,11 @@ node {
     ////////////////////////////////////////
 
     stage('Tests - Install memphis with helm') {
-      sh "helm install memphis-tests memphis-infra/kubernetes/helm/memphis --set analytics='false',teston='ui' --create-namespace --namespace memphis-$unique_id"
+      	sh "rm -rf memphis-k8s"
+      	dir ('memphis-k8s'){
+       	  git credentialsId: 'main-github', url: 'git@github.com:memphisdev/memphis-k8s.git', branch: gitBranch
+      	}
+      	sh "helm install memphis-tests memphis-k8s/memphis --set analytics='false',teston='ui' --create-namespace --namespace memphis-$unique_id"
     }
 
     stage('Open port forwarding to memphis service') {
@@ -122,8 +126,8 @@ node {
       stage('Push to staging'){
         sh "aws eks --region eu-central-1 update-kubeconfig --name staging-cluster"
         sh "helm uninstall my-memphis --kubeconfig ~/.kube/config -n memphis"
-        sh 'helm install my-memphis memphis-infra/kubernetes/helm/memphis --set analytics="false" --kubeconfig ~/.kube/config --create-namespace --namespace memphis'
-        sh "rm -rf memphis-infra"
+        sh 'helm install my-memphis memphis-k8s/memphis --set analytics="false" --kubeconfig ~/.kube/config --create-namespace --namespace memphis'
+        sh "rm -rf memphis-k8s"
       }
     }
 

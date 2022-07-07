@@ -11,7 +11,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { ApiEndpoints } from '../const/apiEndpoints';
 import {
     LOCAL_STORAGE_ALREADY_LOGGED_IN,
     LOCAL_STORAGE_AVATAR_ID,
@@ -24,7 +23,6 @@ import {
     LOCAL_STORAGE_ALLOW_ANALYTICS
 } from '../const/localStorageConsts';
 import pathDomains from '../router';
-import { httpRequest } from './http';
 
 const AuthService = (function () {
     const saveToLocalStorage = (userData) => {

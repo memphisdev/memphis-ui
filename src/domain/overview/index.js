@@ -136,6 +136,7 @@ function OverView() {
                                 <img
                                     className="sandboxUserImg"
                                     src={localStorage.getItem('profile_pic') || botUrl} // profile_pic is available only in sandbox env
+                                    referrerpolicy="no-referrer"
                                     width={localStorage.getItem('profile_pic') ? 60 : 40}
                                     height={localStorage.getItem('profile_pic') ? 60 : 40}
                                     alt="bot"
