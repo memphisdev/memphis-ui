@@ -26,14 +26,8 @@ import Resources from './resources';
 import Button from '../../components/button';
 import CreateStationDetails from '../../components/createStationDetails';
 import Modal from '../../components/modal';
-import {
-    LOCAL_STORAGE_ALLOW_ANALYTICS,
-    LOCAL_STORAGE_ALREADY_LOGGED_IN,
-    LOCAL_STORAGE_AVATAR_ID,
-    LOCAL_STORAGE_TOKEN,
-    LOCAL_STORAGE_USER_NAME
-} from '../../const/localStorageConsts';
-import { PRIVACY_URL, SOCKET_URL } from '../../config';
+import { LOCAL_STORAGE_ALLOW_ANALYTICS, LOCAL_STORAGE_ALREADY_LOGGED_IN, LOCAL_STORAGE_AVATAR_ID, LOCAL_STORAGE_USER_NAME } from '../../const/localStorageConsts';
+import { PRIVACY_URL } from '../../config';
 import { ApiEndpoints } from '../../const/apiEndpoints';
 import { httpRequest } from '../../services/http';
 import Loader from '../../components/loader';
@@ -53,7 +47,7 @@ function OverView() {
     const [analyticsModal, analyticsModalFlip] = useState(true);
     const createStationRef = useRef(null);
     const [botUrl, SetBotUrl] = useState(require('../../assets/images/bots/1.svg'));
-    const [username, SetUsername] = useState(localStorage.getItem(LOCAL_STORAGE_USER_NAME));
+    const [username, SetUsername] = useState('');
     const [isLoading, setisLoading] = useState(false);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
 
@@ -74,9 +68,7 @@ function OverView() {
         dispatch({ type: 'SET_ROUTE', payload: 'overview' });
         getOverviewData();
         setBotImage(state?.userData?.avatar_id || localStorage.getItem(LOCAL_STORAGE_AVATAR_ID));
-        if (process.env.REACT_APP_SANDBOX_ENV) {
-            setUsernameByEnv();
-        }
+        SetUsername(localStorage.getItem(LOCAL_STORAGE_USER_NAME));
         analyticsModalFlip(
             localStorage.getItem(LOCAL_STORAGE_ALREADY_LOGGED_IN) === 'false' && localStorage.getItem(LOCAL_STORAGE_ALLOW_ANALYTICS) === 'true' && state?.analytics_modal
         );
@@ -101,10 +93,6 @@ function OverView() {
         SetBotUrl(require(`../../assets/images/bots/${botId}.svg`));
     };
 
-    const setUsernameByEnv = () => {
-        SetUsername(localStorage.getItem(LOCAL_STORAGE_USER_NAME).substring(0, localStorage.getItem(LOCAL_STORAGE_USER_NAME).indexOf('@')));
-    };
-
     const dontSendAnalytics = async () => {
         try {
             await httpRequest('PUT', `${ApiEndpoints.EDIT_ANALYTICS}`, { send_analytics: false });
@@ -120,7 +108,6 @@ function OverView() {
         analyticsModalFlip(false);
         dispatch({ type: 'ANALYTICS_MODAL', payload: false });
     };
-
     return (
         <div className="overview-container">
             {isLoading && (
