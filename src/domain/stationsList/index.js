@@ -86,7 +86,7 @@ const StationsList = () => {
     );
 
     useEffect(() => {
-        state.socket?.on('factory_overview_data', (data) => {
+        state.socket?.on(`factory_overview_data${factoryDetails.name}`, (data) => {
             setBotImage(data.user_avatar_id || botId);
             setParseDate(parsingDate(data.creation_date));
             setFactoryDetails(data);
