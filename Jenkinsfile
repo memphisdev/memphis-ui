@@ -17,6 +17,16 @@ node {
 	sh 'docker login -u $DOCKER_HUB_CREDS_USR -p $DOCKER_HUB_CREDS_PSW'
       }
     }
+	
+	  
+    stage('Create memphis namespace in Kubernetes'){
+      sh "aws eks --region eu-central-1 update-kubeconfig --name sandbox-cluster"
+      sh "kubectl create namespace memphis --dry-run=client -o yaml | kubectl apply -f -"
+      sh "aws s3 cp s3://memphis-jenkins-backup-bucket/regcred.yaml ."
+      sh "kubectl apply -f regcred.yaml -n memphis"
+      sh "kubectl patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"regcred\"}]}' -n memphis"
+      //sh "sleep 40"
+    }
 	  
 	  
     ////////////////////////////////////////
@@ -39,7 +49,6 @@ node {
       	dir ('memphis-infra'){
        	  git credentialsId: 'main-github', url: 'git@github.com:memphisdev/memphis-infra.git', branch: gitBranch
       	}
-	sh "helm uninstall my-memphis --kubeconfig ~/.kube/config -n memphis"
       	sh "helm install my-memphis memphis-infra/kubernetes/helm/memphis --set cluster.enabled=“true”,analytics="false",sandbox="true" --create-namespace --namespace memphis"
         sh "rm -rf memphis-infra"
       }
