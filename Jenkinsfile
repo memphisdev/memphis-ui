@@ -52,7 +52,7 @@ node {
       	sh "helm install my-memphis memphis-infra/kubernetes/helm/memphis --set cluster.enabled=“true”,analytics="false",sandbox="true" --create-namespace --namespace memphis"
         sh "rm -rf memphis-infra"
       }
-    }
+    
  
 	  
     notifySuccessful()
