@@ -140,6 +140,8 @@ function OverView() {
         }
     };
 
+
+    const stationsOfUser = allStations.filter(station => station.created_by_user === username)
     return (
         <div className="overview-container">
             {isLoading && (
@@ -185,7 +187,7 @@ function OverView() {
                         />
                     </div>
                     <div className="overview-components">
-                        {allStations.length === 0 || localStorage.getItem(LOCAL_STORAGE_ALREADY_LOGGED_IN) === 'false' ? (
+                        {stationsOfUser.length === 0 ? (
                             <div className="left-side">
                                 <GetStarted />
                             </div>
