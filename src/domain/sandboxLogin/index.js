@@ -52,7 +52,7 @@ const SandboxLogin = (props) => {
                 'POST',
                 ApiEndpoints.SANDBOX_LOGIN,
                 {
-                    LoginType: 'github',
+                    login_type: 'github',
                     token: code
                 },
                 {},
@@ -173,7 +173,7 @@ const SandboxLogin = (props) => {
                 'POST',
                 ApiEndpoints.SANDBOX_LOGIN,
                 {
-                    loginType: 'google',
+                    login_type: 'google',
                     token: token
                 },
                 {},

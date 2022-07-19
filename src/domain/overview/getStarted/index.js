@@ -103,6 +103,8 @@ const GetStarted = (props) => {
 
     useEffect(() => {
         getStartedDispatch({ type: 'SET_CURRENT_STEP', payload: 1 });
+        getStartedDispatch({ type: 'SET_HIDDEN_BUTTON', payload: false });
+
         return;
     }, []);
 

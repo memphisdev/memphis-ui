@@ -23,16 +23,16 @@ import { ApiEndpoints } from '../../../../const/apiEndpoints';
 import './style.scss';
 import TitleComponent from '../../../../components/titleComponent';
 
-const screenEnum = {
+export const produceConsumeScreenEnum = {
     DATA_SNIPPET: 0,
     DATA_WAITING: 1,
     DATA_RECIEVED: 2
 };
 
 const ProduceConsumeData = (props) => {
-    const { waitingImage, waitingTitle, successfullTitle, languagesOptions, activeData, dataName } = props;
+    const { waitingImage, waitingTitle, successfullTitle, languagesOptions, activeData, dataName, displayScreen } = props;
     const [creationForm] = Form.useForm();
-    const [isCopyToClipBoard, setCopyToClipBoard] = useState(screenEnum['DATA_SNIPPET']);
+    const [isCopyToClipBoard, setCopyToClipBoard] = useState(displayScreen);
     const [languageOption, setLanguageOption] = useState();
     const [getStartedState, getStartedDispatch] = useContext(GetStartedStoreContext);
     const [intervalStationDetails, setintervalStationDetails] = useState();
@@ -50,8 +50,16 @@ const ProduceConsumeData = (props) => {
         }
     };
 
+    useEffect(() => {
+        if (displayScreen !== isCopyToClipBoard) {
+            if (displayScreen === produceConsumeScreenEnum['DATA_WAITING']) {
+                onCopyToClipBoard();
+            }
+            setCopyToClipBoard(displayScreen);
+        }
+    }, [displayScreen]);
+
     const onCopyToClipBoard = () => {
-        setCopyToClipBoard(screenEnum['DATA_WAITING']);
         let interval = setInterval(() => {
             getStationDetails();
         }, 3000);
@@ -66,16 +74,18 @@ const ProduceConsumeData = (props) => {
     }, []);
 
     useEffect(() => {
-        if (isCopyToClipBoard === screenEnum['DATA_WAITING'] || isCopyToClipBoard === screenEnum['DATA_SNIPPET']) {
-            getStartedDispatch({ type: 'SET_NEXT_DISABLE', payload: true });
+        if (isCopyToClipBoard === produceConsumeScreenEnum['DATA_WAITING']) {
+            getStartedDispatch({ type: 'SET_HIDDEN_BUTTON', payload: true });
         } else {
+            getStartedDispatch({ type: 'SET_HIDDEN_BUTTON', payload: false });
             getStartedDispatch({ type: 'SET_NEXT_DISABLE', payload: false });
         }
 
-        if (isCopyToClipBoard === screenEnum['DATA_RECIEVED']) {
+        if (isCopyToClipBoard === produceConsumeScreenEnum['DATA_RECIEVED']) {
             clearInterval(intervalStationDetails);
         }
         return () => {
+            getStartedDispatch({ type: 'SET_HIDDEN_BUTTON', payload: false });
             clearInterval(intervalStationDetails);
         };
     }, [isCopyToClipBoard]);
@@ -87,11 +97,11 @@ const ProduceConsumeData = (props) => {
             Object.keys(getStartedState?.stationData[activeData]).length >= 1 &&
             getStartedState?.stationData[activeData][0]?.name === dataName
         ) {
-            setCopyToClipBoard(screenEnum['DATA_RECIEVED']);
+            setCopyToClipBoard(produceConsumeScreenEnum['DATA_RECIEVED']);
             // clearInterval(intervalStationDetails);
         }
         return () => {
-            if (isCopyToClipBoard === screenEnum['DATA_RECIEVED']) {
+            if (isCopyToClipBoard === produceConsumeScreenEnum['DATA_RECIEVED']) {
                 clearInterval(intervalStationDetails);
             }
         };
@@ -114,7 +124,7 @@ const ProduceConsumeData = (props) => {
                 style={{ marginBottom: '0' }}
             >
                 <div className="select-container">
-                    {isCopyToClipBoard === screenEnum['DATA_SNIPPET'] ? (
+                    {isCopyToClipBoard === produceConsumeScreenEnum['DATA_SNIPPET'] ? (
                         <div>
                             <TitleComponent headerTitle="Language" typeTitle="sub-header"></TitleComponent>
                             <SelectComponent
@@ -133,7 +143,7 @@ const ProduceConsumeData = (props) => {
                         </div>
                     ) : null}
                 </div>
-                {isCopyToClipBoard === screenEnum['DATA_WAITING'] ? (
+                {isCopyToClipBoard === produceConsumeScreenEnum['DATA_WAITING'] ? (
                     <div className="data-waiting-container">
                         <img className="image-waiting-successful" src={waitingImage} alt="waiting-data"></img>
                         <TitleComponent headerTitle={waitingTitle} typeTitle="sub-header" style={{ header: { fontSize: '18px' } }}></TitleComponent>
@@ -157,19 +167,13 @@ const ProduceConsumeData = (props) => {
                             />
                         </div>
                     </div>
-                ) : isCopyToClipBoard === screenEnum['DATA_RECIEVED'] ? (
+                ) : isCopyToClipBoard === produceConsumeScreenEnum['DATA_RECIEVED'] ? (
                     <div className="successfully-container">
                         <img className="image-waiting-successful" src={SuccessfullyReceivedProduce} alt="successfully-received-produce"></img>
                         <TitleComponent headerTitle={successfullTitle} typeTitle="sub-header" style={{ header: { fontSize: '18px' } }}></TitleComponent>
                     </div>
                 ) : (
-                    <CodeSnippet
-                        onCopyToClipBoard={() => {
-                            onCopyToClipBoard();
-                        }}
-                        languageOption={languageOption}
-                        codeSnippet={languageOption?.value}
-                    />
+                    <CodeSnippet languageOption={languageOption} codeSnippet={languageOption?.value} />
                 )}
             </Form.Item>
         </Form>

@@ -21,6 +21,8 @@ import { Link, useHistory } from 'react-router-dom';
 import { GetStartedStoreContext } from '..';
 import pathDomains from '../../../../router';
 import './style.scss';
+import { ApiEndpoints } from '../../../../const/apiEndpoints';
+import { httpRequest } from '../../../../services/http';
 
 const Finish = (props) => {
     const { createStationFormRef } = props;
@@ -35,12 +37,22 @@ const Finish = (props) => {
     }, []);
 
     const onNext = () => {
+        doneNextSteps();
         window.location.reload(false);
     };
 
     const onFinish = (e) => {
         e.preventDefault();
+        doneNextSteps();
         history.push(`${pathDomains.factoriesList}/${getStartedState.factoryName}/${getStartedState.stationName}`);
+    };
+
+    const doneNextSteps = async () => {
+        try {
+            const data = await httpRequest('POST', ApiEndpoints.DONE_NEXT_STEPS);
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     return (

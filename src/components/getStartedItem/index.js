@@ -15,22 +15,24 @@ const GetStartedItem = (props) => {
                 <TitleComponent className="header-description" headerTitle={headerTitle} headerDescription={headerDescription} style={style}></TitleComponent>
                 {children}
             </div>
-            <Button
-                width={getStartedState?.currentStep === 5 ? '190px' : '129px'}
-                height="42px"
-                placeholder={getStartedState?.currentStep === 5 ? 'Lanuch Dashboard' : 'Next'}
-                colorType="white"
-                radiusType="circle"
-                alignSelf="flex-end"
-                backgroundColorType={'purple'}
-                fontSize="16px"
-                fontWeight="bold"
-                htmlType="submit"
-                marginTop="27px"
-                disabled={getStartedState?.nextDisable}
-                onClick={() => onNext()}
-                isLoading={getStartedState?.isLoading}
-            />
+            {getStartedState.isHiddenButton === false ? (
+                <Button
+                    width={getStartedState?.currentStep === 5 ? '190px' : '129px'}
+                    height="42px"
+                    placeholder={getStartedState?.currentStep === 5 ? 'Lanuch Dashboard' : 'Next'}
+                    colorType="white"
+                    radiusType="circle"
+                    alignSelf="flex-end"
+                    backgroundColorType={'purple'}
+                    fontSize="16px"
+                    fontWeight="bold"
+                    htmlType="submit"
+                    marginTop="27px"
+                    disabled={getStartedState?.nextDisable}
+                    onClick={() => onNext()}
+                    isLoading={getStartedState?.isLoading}
+                />
+            ) : null}
         </div>
     );
 };
