@@ -11,15 +11,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { CODE_PRODUCE_GO, CODE_PRODUCE_JAVASCRIPT, CODE_PRODUCE_PYTHON } from '../../../../const/SDKExample';
 import WaitingProduceData from '../../../../assets/images/waitingProduceData.svg';
-import ProduceConsumeData from '../produceConsumeData';
+import ProduceConsumeData, { produceConsumeScreenEnum } from '../produceConsumeData';
 import { GetStartedStoreContext } from '..';
 
 const ProduceData = (props) => {
     const { createStationFormRef } = props;
     const [getStartedState, getStartedDispatch] = useContext(GetStartedStoreContext);
+    const [displayScreen, setDisplayScreen] = useState();
     const host = process.env.REACT_APP_SANDBOX_ENV ? 'broker.sandbox.memphis.dev' : 'localhost';
 
     const languagesOptions = {
@@ -50,11 +51,19 @@ const ProduceData = (props) => {
     };
 
     const onNext = () => {
-        getStartedDispatch({ type: 'SET_CURRENT_STEP', payload: getStartedState?.currentStep + 1 });
+        if (displayScreen === produceConsumeScreenEnum['DATA_SNIPPET']) {
+            setDisplayScreen(produceConsumeScreenEnum['DATA_WAITING']);
+        } else {
+            getStartedDispatch({ type: 'SET_CURRENT_STEP', payload: getStartedState?.currentStep + 1 });
+        }
     };
 
     useEffect(() => {
         createStationFormRef.current = onNext;
+    }, [displayScreen]);
+
+    useEffect(() => {
+        setDisplayScreen(produceConsumeScreenEnum['DATA_SNIPPET']);
     }, []);
 
     return (
@@ -65,6 +74,7 @@ const ProduceData = (props) => {
             languagesOptions={languagesOptions}
             activeData={'connected_producers'}
             dataName={'producer_app'}
+            displayScreen={displayScreen}
         ></ProduceConsumeData>
     );
 };

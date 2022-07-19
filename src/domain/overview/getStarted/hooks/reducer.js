@@ -73,6 +73,11 @@ const Reducer = (getStartedState, action) => {
                 ...getStartedState,
                 isLoading: action.payload
             };
+        case 'SET_HIDDEN_BUTTON':
+            return {
+                ...getStartedState,
+                isHiddenButton: action.payload
+            };
         default:
             return getStartedState;
     }
