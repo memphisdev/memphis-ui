@@ -145,8 +145,13 @@
         margin-left: 40%;
     }
     .sandbox-welcome-links {
-        text-align: center;
+        margin-top: 15px;
+        margin-bottom: 15px;
         color: #b4b4b4;
+        img {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
     }
     .sandbox-icon {
         width: 5%;

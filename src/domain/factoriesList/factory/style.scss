@@ -35,7 +35,7 @@
                 position: relative;
                 font-weight: 500;
                 overflow-wrap: anywhere;
-                height: 20vh;
+                height: 15vh;
                 min-height: 100px;
                 font-weight: 400;
                 font-size: 12px;
@@ -43,6 +43,7 @@
         }
         .factory-owner {
             border-top: 1px solid var(--gray);
+            margin-top: 5px;
             display: flex;
             align-items: center;
             .user-avatar {
