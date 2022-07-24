@@ -13,8 +13,9 @@
 
 import './style.scss';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Button, Form, InputNumber } from 'antd';
+import { Context } from '../../hooks/store';
 
 import RadioButton from '../radioButton';
 import Input from '../Input';
@@ -58,6 +59,7 @@ const storageOptions = [
 ];
 
 const CreateStationDetails = (props) => {
+    const [state, dispatch] = useContext(Context);
     const { chooseFactoryField = false, createStationRef, factoryName = '' } = props;
     const [factoryNames, setFactoryNames] = useState([]);
     const [loading, setLoading] = useState([]);
@@ -298,7 +300,11 @@ const CreateStationDetails = (props) => {
                         <InputNumber
                             bordered={false}
                             min={1}
-                            max={5}
+                            max={
+                                state?.monitor_data?.system_components && state?.monitor_data?.system_components[1]?.desired_pods <= 5
+                                    ? state?.monitor_data?.system_components[1]?.desired_pods
+                                    : 5
+                            }
                             keyboard={true}
                             value={formFields.replicas}
                             onChange={(e) => updateFormState('replicas', e.target.value)}

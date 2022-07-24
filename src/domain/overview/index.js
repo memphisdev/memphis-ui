@@ -140,8 +140,7 @@ function OverView() {
         }
     };
 
-
-    const stationsOfUser = allStations.filter(station => station.created_by_user === username)
+    const stationsOfUser = allStations.filter((station) => station.created_by_user === username);
     return (
         <div className="overview-container">
             {isLoading && (
@@ -244,33 +243,26 @@ function OverView() {
                     <label>
                         We are super happy to have you with us!
                         <br />
-                        Please bear in mind that it is a sandbox environment and under constant modifications.
+                        Please remember that this is a sandbox environment and is under constant modifications.
                         <br />
-                        Downtime and bugs might occur.
+                        Downtimes might occur.
                     </label>
                     <br />
-                    {/* <br /> */}
                     <div className="sandbox-welcome-links">
-                        <br />
-                        <label>
-                            <Link to={{ pathname: 'https://docs.memphis.dev' }} target="_blank">
-                                <img src={docsIcon} alt="docs" className="sandbox-icon"></img>
-                            </Link>
-                        </label>
-                        <label>
-                            <Link to={{ pathname: 'https://join.slack.com/t/memphiscommunity/shared_invite/zt-1bdp9ydfk-QpwYIOTz4nkvTGtEL6kJYQ' }} target="_blank">
-                                <img src={slackIcon} alt="slack" className="sandbox-icon"></img>
-                            </Link>
-                            <Link to={{ pathname: 'https://discord.com/invite/WZpysvAeTf' }} target="_blank">
-                                {'  '}
-                                <img src={discordIcon} alt="discord" className="sandbox-icon"></img>
-                            </Link>
-                        </label>
+                        <Link to={{ pathname: 'https://docs.memphis.dev' }} target="_blank">
+                            <img src={docsIcon} alt="docs" className="sandbox-icon"></img>
+                        </Link>
+                        <Link to={{ pathname: 'https://join.slack.com/t/memphiscommunity/shared_invite/zt-1bdp9ydfk-QpwYIOTz4nkvTGtEL6kJYQ' }} target="_blank">
+                            <img src={slackIcon} alt="slack" className="sandbox-icon"></img>
+                        </Link>
+                        <Link to={{ pathname: 'https://discord.com/invite/WZpysvAeTf' }} target="_blank">
+                            {'  '}
+                            <img src={discordIcon} alt="discord" className="sandbox-icon"></img>
+                        </Link>
                     </div>
-                    <br />
                     <div className="welcome-modal-btn">
                         <Button
-                            width="120px"
+                            width="130px"
                             height="36px"
                             placeholder={'Get started'}
                             colorType="white"
