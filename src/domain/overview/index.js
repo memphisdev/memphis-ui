@@ -226,7 +226,7 @@ function OverView() {
             <Modal
                 header={''}
                 height="300px"
-                minWidth="630px"
+                minWidth="645px"
                 hr={false}
                 closeAction={() => {
                     setShowWelcome(false);
@@ -237,6 +237,7 @@ function OverView() {
                     localStorage.setItem(LOCAL_STORAGE_WELCOME_MESSAGE, false);
                 }}
                 open={showWelcome}
+
             >
                 <div className="sandbox-welcome">
                     <label className="welcome-header">{welcomeMessage}</label>
@@ -244,9 +245,9 @@ function OverView() {
                     <label>
                         We are super happy to have you with us!
                         <br />
-                        Please bear in mind that it is a sandbox environment and under constant modifications.
+                        Please remember that this is a sandbox environment and is under constant modifications.
                         <br />
-                        Downtime and bugs might occur.
+                        Downtimes might occur.
                     </label>
                     <br />
                     {/* <br /> */}
